@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="33.954762mm"
+   height="33.954613mm"
+   viewBox="0 0 33.954762 33.954613"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="/home/hxr/Personal/projects/wordfün/images/logo.png"
+   inkscape:export-xdpi="766.0108"
+   inkscape:export-ydpi="766.0108">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="2.8"
+     inkscape:cx="18.164687"
+     inkscape:cy="6.4775808"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     showguides="false"
+     fit-margin-top="2"
+     fit-margin-left="2"
+     fit-margin-right="2"
+     fit-margin-bottom="2"
+     inkscape:window-width="1916"
+     inkscape:window-height="1076"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-2.6302071,-99.019344)">
+    <circle
+       style="opacity:1;fill:#ccc315;fill-opacity:1;stroke:none;stroke-width:0.25;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9000001;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       id="path823"
+       cx="19.607513"
+       cy="115.99665"
+       r="14.977306" />
+    <path
+       style="fill:#2c5aa0;fill-rule:evenodd;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 93.564453,418.57031 -27.777344,25.50586 -15.658203,-22.47656 -5.050781,23.99219 25.884766,18.56054 h 53.498049 a 56.607141,56.607141 0 0 0 6.2539,-25.74023 56.607141,56.607141 0 0 0 -0.20703,-4.53711 l -18.75976,1.74023 z"
+       transform="scale(0.26458333)"
+       id="path836"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.64444447px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#fefefe;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-48.275394"
+       y="108.49378"
+       id="text817"
+       transform="rotate(-27.655626)"><tspan
+         sodipodi:role="line"
+         id="tspan815"
+         x="-48.275394"
+         y="108.49378"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Dyuthi;-inkscape-font-specification:Dyuthi;fill:#fefefe;fill-opacity:1;stroke-width:0.26458332px">Woord</tspan></text>
+    <path
+       style="fill:#87aade;fill-rule:evenodd;stroke:none;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="M 64.642578,432.51953 34.285156,449.30469 17.679688,434.8457 A 56.607141,56.607141 0 0 0 17.5,438.41211 56.607141,56.607141 0 0 0 22.476562,461.44922 H 106.42773 L 66.785156,440.73438 Z"
+       transform="scale(0.26458333)"
+       id="path825"
+       inkscape:connector-curvature="0" />
+    <path
+       style="opacity:1;fill:#37c83c;fill-opacity:1;stroke:none;stroke-width:0.94488192;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.9000001;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m 20.566406,456.57617 a 56.607141,56.607141 0 0 0 53.541016,38.44336 56.607141,56.607141 0 0 0 53.554688,-38.44336 z"
+       transform="scale(0.26458333)"
+       id="rect852"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:5.64444447px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="66.459534"
+       y="95.906898"
+       id="text821"
+       transform="rotate(26.021159)"><tspan
+         sodipodi:role="line"
+         id="tspan819"
+         x="66.459534"
+         y="95.906898"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Lobster Two';-inkscape-font-specification:'Lobster Two';fill:#ffffff;fill-opacity:1;stroke-width:0.26458332px">Schaap</tspan></text>
+  </g>
+</svg>
