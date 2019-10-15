@@ -109,7 +109,7 @@ function shuffle (array) {
   }
 }
 
-fetch('/wordlists/nl.5000.json')
+fetch('wordlists/nl.5000.json')
     .then(function(response) {
       if (!response.ok) {
         throw new Error("HTTP error, status = " + response.status);
