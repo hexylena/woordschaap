@@ -1,0 +1,21 @@
+{
+  "short_name": "Woordfün",
+  "name": "Woordfün",
+  "icons": [
+    {
+      "src": "/images/icons-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/images/icons-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/?source=pwa",
+  "background_color": "#defc74",
+  "display": "fullscreen",
+  "scope": "/",
+  "theme_color": "#defc74"
+}
