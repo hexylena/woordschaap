@@ -9,6 +9,7 @@ var table = {};
 var offsetTop = 0;
 var offsetLeft = 0;
 var level = 0;
+var currentUser;
 
 var table_max_x = 0,
 	table_max_y = 0;
@@ -78,7 +79,21 @@ function subsets(array){
 }
 
 
-
+function syncUser() {
+	if(!localStorage.getItem('woordfuunUser')) {
+		currentUser = {
+			username: 'helena',
+			level: level,
+		}
+		localStorage.setItem('woordfuunUser', JSON.stringify(currentUser));
+	} else {
+		currentUser = JSON.parse(localStorage.getItem('woordfuunUser'))
+		// Update level
+		currentUser.level = level;
+		// Update user
+		localStorage.setItem('woordfuunUser', JSON.stringify(currentUser));
+	}
+}
 
 // https://www.frankmitchell.org/2015/01/fisher-yates/
 function shuffle (array) {
@@ -94,7 +109,7 @@ function shuffle (array) {
   }
 }
 
-fetch('/wordlists/nl.1000.json')
+fetch('/wordlists/nl.5000.json')
     .then(function(response) {
       if (!response.ok) {
         throw new Error("HTTP error, status = " + response.status);
@@ -149,6 +164,9 @@ function hslToRgb(h, s, l) {
 }
 
 function startup() {
+	// Obtain user's info + sync
+	syncUser();
+
 	var p = document.getElementById("canvas");
 	w = document.body.clientWidth * 0.8;
 	p.width = w;
@@ -168,21 +186,21 @@ function startup() {
 	});
 	document.body.style.backgroundImage =    "url('" + pattern.png() + "')";
 
-	setTitle('Level ' + (level + 1));
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
+	setTitle('Level ' + (level + 1) + ' / ' + letters7.length);
 	shuffle(letters7);
 	// get the word for this level
 	wordj = letters7[level];
 	word = wordj.split('');
+	shuffle(word);
 
-	console.log("WORD: ", wordj)
 	valid_subsets = subsets(word)
-	console.log(valid_subsets);
-	// Shuffle the subsets
-	shuffle(valid_subsets)
 	// Top N?
-	var lwords = valid_subsets.slice(0, 10);;
+	shuffle(valid_subsets)
+	console.log(valid_subsets)
+	var lwords = [wordj].concat(valid_subsets.filter(function(w){ return w != wordj  }).slice(0, 9));
+	console.log(lwords)
 
 	var input_json = [];
 	for(var i = 0; i < lwords.length; i++){
@@ -192,6 +210,10 @@ function startup() {
 	var layout = generateLayout(input_json);
 
 	answers = layout.result;
+	for(var a = 0; a < answers.length; a++){
+		answers[a].startx -= 1;
+		answers[a].starty -= 1;
+	}
 
 	for(var i = 0; i < answers.length; i++){
 		if(answers[i].orientation == "down") {
@@ -263,12 +285,11 @@ function renderTable() {
 			key = r + ',' + c;
 
 			if(! table[key].blank) {
+				td.style = 'background: #1a2b33c7';
 				if( table[key].found ){
 					td.className = 'solved';
 				}
 				td.innerHTML = table[key].text;
-			} else {
-				td.style = 'background: transparent'
 			}
 
 			tr.appendChild(td)
@@ -299,7 +320,7 @@ function clear(complete, highlight){
 	positionLookup = [];
 	var el = document.getElementsByTagName("canvas")[0];
 	var ctx = el.getContext("2d");
-	ctx.font = "30px Arial";
+	ctx.font = "30px Open Sans";
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	if(complete){
@@ -330,11 +351,11 @@ function clear(complete, highlight){
 			}
 
 		} else {
-			ctx.fillStyle = 'gray';
+			ctx.fillStyle = '#1a2b33c7';
 		}
 		ctx.fill();
 
-		ctx.fillStyle = 'black';
+		ctx.fillStyle = 'white';
 		ctx.fillText(word[i], rx - 10, ry + 10);
 	}
 
@@ -354,22 +375,13 @@ function handleStart(evt) {
 	var ctx = el.getContext("2d");
 	var touches = evt.changedTouches;
 
-	console.log(touches);
-
 	for (var i = 0; i < touches.length; i++) {
-		//console.log("touchstart:" + i + "..." + touches[i]);
-		//console.log('a', ongoingTouches);
 		ongoingTouches.push(copyTouch(touches[i]));
-		//for(var j = 0; j<ongoingTouches.length; j++){
-			//console.log('c', j, ongoingTouches[j]);
-		//}
-		//console.log('b', ongoingTouches);
 		var color = colorForTouch(touches[i]);
 		ctx.beginPath();
 		ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);	// a circle at the start
 		ctx.fillStyle = color;
 		ctx.fill();
-		//console.log("touchstart:" + i + ".");
 	}
 }
 
@@ -388,10 +400,7 @@ function detectHit(x, y){
 				// already been here
 				return;
 			}
-			//console.log(i, d, positionLookup[i].letter);
-
 			hitIdx.push(i);
-			//console.log(hitIdx);
 
 			clear(false, i);
 		}
@@ -431,12 +440,9 @@ function handleMove(evt) {
 		if (idx >= 0) {
 			detectHit(x, y);
 
-			//console.log("continuing touch "+idx);
 			drawSegment(ctx, ongoingTouches[ongoingTouches.length - 1].pageX, ongoingTouches[ongoingTouches.length - 1].pageY, x, y, ongoingTouches.length);
 
 			ongoingTouches.push(copyTouch(touches[i]));
-		//console.log(ongoingTouches);
-			//console.log(".");
 		} else {
 			console.log("can't figure out which touch to continue");
 		}
@@ -445,7 +451,6 @@ function handleMove(evt) {
 
 function handleEnd(evt) {
 	evt.preventDefault();
-	//console.log("touchend");
 	var el = document.getElementsByTagName("canvas")[0];
 	var ctx = el.getContext("2d");
 	var touches = evt.changedTouches;
@@ -490,7 +495,6 @@ function advanceLevel(timeout){
 
 function handleCancel(evt) {
 	evt.preventDefault();
-	//console.log("touchcancel.");
 	var touches = evt.changedTouches;
 
 	for (var i = 0; i < touches.length; i++) {
@@ -508,12 +512,10 @@ function colorForTouch(touch) {
 	g = g.toString(16); // make it a hex digit
 	b = b.toString(16); // make it a hex digit
 	var color = "#" + r + g + b;
-	//console.log("color for touch with identifier " + touch.identifier + " = " + color);
 	return color;
 }
 
 function copyTouch(touch) {
-	//console.log(touch)
 	var q = {
 		identifier: touch.identifier,
 		pageX: touch.pageX - offsetLeft,

@@ -1,6 +1,6 @@
 {
-  "short_name": "Woordfün",
-  "name": "Woordfün",
+  "short_name": "Woordschap",
+  "name": "Woordschap",
   "icons": [
     {
       "src": "/images/icons-192.png",
@@ -14,8 +14,8 @@
     }
   ],
   "start_url": "/?source=pwa",
-  "background_color": "#defc74",
+  "background_color": "#ccc315",
   "display": "fullscreen",
   "scope": "/",
-  "theme_color": "#defc74"
+  "theme_color": "#ccc315"
 }

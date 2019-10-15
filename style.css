@@ -1,11 +1,10 @@
 td {
 	text-align: center;
-	font-family: monospace;
+	font-family: 'Fredoka One', cursive;
 	color: transparent;
-	background: #1a2b33c7;
+	background: transparent;
 
 	font-size: 150%;
-	font-weight: 700;
 	letter-spacing: 0.2em;
 	line-height: 1em;
 
@@ -28,13 +27,13 @@ canvas {
 table {
 	margin: auto;
 	width: 100%;
+	table-layout: fixed;
 }
 
 #level {
 	text-align: center;
 	font-size: 180%;
-	font-family: cursive;
-	font-weight: 900;
+	font-family: 'Fredoka One', cursive;
 	color: white;
 
 	padding: 0.1em;
