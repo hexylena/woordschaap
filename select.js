@@ -1,14 +1,113 @@
 var ongoingTouches = [];
-var word = ['g', 'e', 'h', 'o', 'o', 'r', 'd'];
+var wordList = [];
+var wordj = '';
+var word = [];
 var positionLookup = [];
 var hitIdx = [];
 var answers = [];
 var table = {};
 var offsetTop = 0;
 var offsetLeft = 0;
+var level = 0;
 
 var table_max_x = 0,
 	table_max_y = 0;
+
+var seed = 1;
+function random() {
+	var x = Math.sin(seed++) * 10000;
+	return x - Math.floor(x);
+}
+
+
+//https://stackoverflow.com/questions/42773836/how-to-find-all-subsets-of-a-set-in-javascript
+const getAllSubsets =
+      theArray => theArray.reduce(
+        (subsets, value) => subsets.concat(
+         subsets.map(set => [value,...set])
+        ),
+        [[]]
+      );
+
+function consume(iterator){
+	values = [];
+	while(true) {
+		val = iterator.next()
+		if(val.done){
+			break;
+		}
+		values.push(val.value);
+	}
+	return values;
+}
+
+
+// https://stackoverflow.com/questions/37579994/generate-permutations-of-javascript-array
+function perm(xs) {
+  let ret = [];
+
+  for (let i = 0; i < xs.length; i = i + 1) {
+    let rest = perm(xs.slice(0, i).concat(xs.slice(i + 1)));
+
+    if(!rest.length) {
+      ret.push([xs[i]])
+    } else {
+      for(let j = 0; j < rest.length; j = j + 1) {
+        ret.push([xs[i]].concat(rest[j]))
+      }
+    }
+  }
+  return ret;
+}
+
+function subsets(array){
+	valid_subsets = [];
+	selections = getAllSubsets(array).filter(function(a){ return a.length > 2 && a.length < 8 });
+	for(var i = 0; i < selections.length; i++) {
+		permutations = perm(selections[i]);
+		for(var j = 0;j < permutations.length; j++){
+			p = permutations[j].join('');
+			if(wordList.includes(p)){
+				if(!valid_subsets.includes(p)){
+					valid_subsets.push(p)
+				}
+			}
+		}
+	}
+	return valid_subsets
+}
+
+
+
+
+// https://www.frankmitchell.org/2015/01/fisher-yates/
+function shuffle (array) {
+  var i = 0
+    , j = 0
+    , temp = null
+
+  for (i = array.length - 1; i > 0; i -= 1) {
+    j = Math.floor(random() * (i + 1))
+    temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+}
+
+fetch('/wordlists/nl.1000.json')
+    .then(function(response) {
+      if (!response.ok) {
+        throw new Error("HTTP error, status = " + response.status);
+      }
+      return response.json();
+    })
+    .then(function(json) {
+		wordList = json;
+		startup()
+    })
+    .catch(function(error) {
+		alert(error.message)
+    });
 
 
 function hslToRgb(h, s, l) {
@@ -50,14 +149,10 @@ function hslToRgb(h, s, l) {
 }
 
 function startup() {
-
-	var p = document.createElement("canvas");
-	p.id = "canvas";
+	var p = document.getElementById("canvas");
 	w = document.body.clientWidth * 0.8;
 	p.width = w;
 	p.height = w;
-	var container = document.getElementById("canvasholder");
-	container.appendChild(p);
 
 	var el = document.getElementsByTagName("canvas")[0];
 	el.addEventListener("touchstart", handleStart, false);
@@ -66,10 +161,29 @@ function startup() {
 	el.addEventListener("touchmove", handleMove, false);
 	console.log("initialized.");
 
-	clear(true);
+	var pattern = Trianglify({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		seed: level
+	});
+	document.body.style.backgroundImage =    "url('" + pattern.png() + "')";
 
+	setTitle('Level ' + (level + 1));
+	// Pick out a word that's seven letters long
+	letters7 = wordList.filter(word => word.length == 7);
+	shuffle(letters7);
+	// get the word for this level
+	wordj = letters7[level];
+	word = wordj.split('');
 
-	var lwords = ['gehoord', 'goed', 'oog', 'hoe', 'door', 'hoorde', 'hoge', 'hoor', 'god', 'der', 'doe', 'erg', 'orde', 'hoog', 'hoger'];
+	console.log("WORD: ", wordj)
+	valid_subsets = subsets(word)
+	console.log(valid_subsets);
+	// Shuffle the subsets
+	shuffle(valid_subsets)
+	// Top N?
+	var lwords = valid_subsets.slice(0, 10);;
+
 	var input_json = [];
 	for(var i = 0; i < lwords.length; i++){
 		input_json.push({answer: lwords[i]})
@@ -102,6 +216,9 @@ function startup() {
 	renderTable();
 	offsetTop = document.getElementsByTagName("canvas")[0].offsetTop;
 	offsetLeft = document.getElementsByTagName("canvas")[0].offsetLeft;
+
+	clear(true);
+
 }
 
 function renderTable() {
@@ -138,7 +255,6 @@ function renderTable() {
 
 
 	tbl = document.createElement('table');
-	tbl.width = document.body.clientWidth * 0.75;
 
 	for(var r = 0; r < table_max_y; r++){
 		tr = document.createElement('tr');
@@ -148,11 +264,11 @@ function renderTable() {
 
 			if(! table[key].blank) {
 				if( table[key].found ){
-					td.style = 'color: black; background: #2329e242'
-				} else {
-					td.style = 'color: transparent; background: #2329e242';
+					td.className = 'solved';
 				}
 				td.innerHTML = table[key].text;
+			} else {
+				td.style = 'background: transparent'
 			}
 
 			tr.appendChild(td)
@@ -161,7 +277,22 @@ function renderTable() {
 	}
 
 	el.appendChild(tbl);
-	document.getElementsByTagName("table")[0].style = 'height: ' + 0.75 * document.body.clientWidth + 'px'
+
+	// identify available area
+	total_height = 0.45 * document.body.clientHeight;
+	total_width = document.body.clientWidth * 0.9;
+
+	// Retain proportions
+	if (table_max_x / table_max_y > total_width / total_height) {
+		scale = total_width / table_max_x
+	} else {
+		scale = total_height / table_max_y
+	}
+
+	tmp_tbl_height = scale * table_max_y
+	tmp_tbl_width = scale * table_max_x
+	tbl.width = tmp_tbl_width
+	document.getElementsByTagName("table")[0].style = 'height: ' + tmp_tbl_height + 'px'
 }
 
 function clear(complete, highlight){
@@ -331,10 +462,30 @@ function handleEnd(evt) {
 				renderTable();
 			}
 		}
-		log(foundWord);
 	}
 
+	finishLevelIfNeeded();
 	clear(true);
+}
+
+function setTitle(title){
+	document.getElementById("level").innerHTML = title;
+}
+
+function finishLevelIfNeeded() {
+	for(var q = 0; q < answers.length; q++){
+		if(!answers[q].found){
+			return;
+		}
+	}
+
+	advanceLevel(2000);
+}
+
+function advanceLevel(timeout){
+	setTitle('🎉 Solved 🎉');
+	level++;
+	setTimeout(startup, timeout)
 }
 
 function handleCancel(evt) {
@@ -385,6 +536,4 @@ function log(msg) {
 	//var p = document.getElementById('log');
 	//p.innerHTML = msg + "\n" + p.innerHTML;
 }
-
-startup()
 

@@ -1,0 +1,54 @@
+td {
+	text-align: center;
+	font-family: monospace;
+	color: transparent;
+	background: #1a2b33c7;
+
+	font-size: 150%;
+	font-weight: 700;
+	letter-spacing: 0.2em;
+	line-height: 1em;
+
+	border-radius: 20%;
+}
+
+td.solved {
+	color: white;
+
+}
+
+#canvasholder {
+	text-align: center
+}
+
+canvas {
+	margin: auto;
+}
+
+table {
+	margin: auto;
+	width: 100%;
+}
+
+#level {
+	text-align: center;
+	font-size: 180%;
+	font-family: cursive;
+	font-weight: 900;
+	color: white;
+
+	padding: 0.1em;
+	background: #333a;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	flex-direction: column;
+	height: 100%;
+	display: flex;
+	justify-content: space-between;
+	margin: 0px;
+}
