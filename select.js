@@ -103,10 +103,12 @@ function startup() {
 	});
 	document.body.style.backgroundImage = "url('" + pattern.png() + "')";
 
+	// Seed predictably
+	randomSetSeed(level);
+
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
 	setTitle("Level " + (level + 1) + " / " + letters7.length);
-	shuffle(letters7);
 	// get the word for this level
 	wordj = letters7[level];
 	word = wordj.split("");
@@ -115,7 +117,6 @@ function startup() {
 	valid_subsets = subsets(word);
 	// Top N?
 	shuffle(valid_subsets);
-	console.log(valid_subsets);
 	var lwords = [wordj].concat(
 		valid_subsets
 			.filter(function(w) {
@@ -154,10 +155,8 @@ function startup() {
 		}
 	}
 
-	//console.log(table_max_x, table_max_y);
 	console.log(answers);
 
-	//console.log(table);
 	renderTable();
 	offsetTop = document.getElementsByTagName("canvas")[0].offsetTop;
 	offsetLeft = document.getElementsByTagName("canvas")[0].offsetLeft;
