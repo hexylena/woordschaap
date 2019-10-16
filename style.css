@@ -44,6 +44,17 @@ html {
 	height: 100%;
 }
 
+#controlholder {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+#controls {
+	display: flex;
+	flex-direction: row;
+}
+
 body {
 	flex-direction: column;
 	height: 100%;

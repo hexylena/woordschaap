@@ -8,76 +8,14 @@ var answers = [];
 var table = {};
 var offsetTop = 0;
 var offsetLeft = 0;
-var level = 0;
+var level;
 var currentUser;
+var bonusWords = [];
 
 var table_max_x = 0,
 	table_max_y = 0;
 
 var seed = 1;
-function random() {
-	var x = Math.sin(seed++) * 10000;
-	return x - Math.floor(x);
-}
-
-
-//https://stackoverflow.com/questions/42773836/how-to-find-all-subsets-of-a-set-in-javascript
-const getAllSubsets =
-      theArray => theArray.reduce(
-        (subsets, value) => subsets.concat(
-         subsets.map(set => [value,...set])
-        ),
-        [[]]
-      );
-
-function consume(iterator){
-	values = [];
-	while(true) {
-		val = iterator.next()
-		if(val.done){
-			break;
-		}
-		values.push(val.value);
-	}
-	return values;
-}
-
-
-// https://stackoverflow.com/questions/37579994/generate-permutations-of-javascript-array
-function perm(xs) {
-  let ret = [];
-
-  for (let i = 0; i < xs.length; i = i + 1) {
-    let rest = perm(xs.slice(0, i).concat(xs.slice(i + 1)));
-
-    if(!rest.length) {
-      ret.push([xs[i]])
-    } else {
-      for(let j = 0; j < rest.length; j = j + 1) {
-        ret.push([xs[i]].concat(rest[j]))
-      }
-    }
-  }
-  return ret;
-}
-
-function subsets(array){
-	valid_subsets = [];
-	selections = getAllSubsets(array).filter(function(a){ return a.length > 2 && a.length < 8 });
-	for(var i = 0; i < selections.length; i++) {
-		permutations = perm(selections[i]);
-		for(var j = 0;j < permutations.length; j++){
-			p = permutations[j].join('');
-			if(wordList.includes(p)){
-				if(!valid_subsets.includes(p)){
-					valid_subsets.push(p)
-				}
-			}
-		}
-	}
-	return valid_subsets
-}
-
 
 function syncUser() {
 	if(!localStorage.getItem('woordfuunUser')) {
@@ -89,86 +27,53 @@ function syncUser() {
 	} else {
 		currentUser = JSON.parse(localStorage.getItem('woordfuunUser'))
 		// Update level
-		currentUser.level = level;
+		if(level !== undefined){
+			currentUser.level = level;
+		} else {
+			level = currentUser.level;
+		}
 		// Update user
 		localStorage.setItem('woordfuunUser', JSON.stringify(currentUser));
 	}
 }
 
-// https://www.frankmitchell.org/2015/01/fisher-yates/
-function shuffle (array) {
-  var i = 0
-    , j = 0
-    , temp = null
 
-  for (i = array.length - 1; i > 0; i -= 1) {
-    j = Math.floor(random() * (i + 1))
-    temp = array[i]
-    array[i] = array[j]
-    array[j] = temp
-  }
+function validateWord(word) {
+	if(!wordList.includes(word)){
+		return 0;
+	}
+
+	for(var a = 0; a < answers.length; a++){
+		if(answers[a].answer == word) {
+			return 2;
+		}
+	}
+
+	return 1;
 }
 
-fetch('wordlists/nl.5000.json')
-    .then(function(response) {
-      if (!response.ok) {
-        throw new Error("HTTP error, status = " + response.status);
-      }
-      return response.json();
-    })
-    .then(function(json) {
-		wordList = json;
-		startup()
-    })
-    .catch(function(error) {
-		alert(error.message)
-    });
-
-
-function hslToRgb(h, s, l) {
-	var r, g, b;
-
-	if (s == 0) {
-		r = g = b = l; // achromatic
-	} else {
-		var hue2rgb = function hue2rgb(p, q, t) {
-			if (t < 0) t += 1;
-			if (t > 1) t -= 1;
-			if (t < 1 / 6) return p + (q - p) * 6 * t;
-			if (t < 1 / 2) return q;
-			if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-			return p;
-		};
-
-		var q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-		var p = 2 * l - q;
-		r = hue2rgb(p, q, h + 1 / 3);
-		g = hue2rgb(p, q, h);
-		b = hue2rgb(p, q, h - 1 / 3);
+function markAnswerFound(word){
+	for(var a = 0; a < answers.length; a++){
+		if(answers[a].answer == word) {
+			answers[a].found = true;
+		}
 	}
+}
 
-	var r = Math.round(r * 255).toString(15), /* 1 */
-		g = Math.round(g * 255).toString(16),
-		b = Math.round(b * 255).toString(16);
-	if(r.length === 1) {
-		r = 0 + r;
-	}
-	if(g.length === 1) {
-		g = 0 + g;
-	}
-	if(b.length === 1) {
-		b = 0 + b;
-	}
+function showBonusWords() {
 
-	return '#' + r + g + b;
+
 }
 
 function startup() {
 	// Obtain user's info + sync
 	syncUser();
+	// Reset some variables
+	bonusWords = [];
 
+	// Resize canvas (if needed)
 	var p = document.getElementById("canvas");
-	w = document.body.clientWidth * 0.8;
+	w = document.body.clientWidth * 0.7;
 	p.width = w;
 	p.height = w;
 
@@ -184,7 +89,7 @@ function startup() {
 		height: window.innerHeight,
 		seed: level
 	});
-	document.body.style.backgroundImage =    "url('" + pattern.png() + "')";
+	document.body.style.backgroundImage = "url('" + pattern.png() + "')";
 
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
@@ -199,7 +104,7 @@ function startup() {
 	// Top N?
 	shuffle(valid_subsets)
 	console.log(valid_subsets)
-	var lwords = [wordj].concat(valid_subsets.filter(function(w){ return w != wordj  }).slice(0, 9));
+	var lwords = [wordj].concat(valid_subsets.filter(function(w){ return w != wordj }).slice(0, 9));
 	console.log(lwords)
 
 	var input_json = [];
@@ -320,7 +225,7 @@ function clear(complete, highlight){
 	positionLookup = [];
 	var el = document.getElementsByTagName("canvas")[0];
 	var ctx = el.getContext("2d");
-	ctx.font = "30px Open Sans";
+	ctx.font = "30px Cursive";
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 	if(complete){
@@ -328,7 +233,7 @@ function clear(complete, highlight){
 	}
 
 	center = w / 2;
-	halfwidth = 0.8 * w / 2;
+	halfwidth = 0.7 * w / 2;
 	for(var i = 0; i < word.length; i++){
 		x = Math.cos(2 * Math.PI * i / word.length - Math.PI / 2);
 		y = Math.sin(2 * Math.PI * i / word.length - Math.PI / 2);
@@ -377,18 +282,11 @@ function handleStart(evt) {
 
 	for (var i = 0; i < touches.length; i++) {
 		ongoingTouches.push(copyTouch(touches[i]));
-		var color = colorForTouch(touches[i]);
 		ctx.beginPath();
 		ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);	// a circle at the start
-		ctx.fillStyle = color;
+		ctx.fillStyle = 'black';
 		ctx.fill();
 	}
-}
-
-function distance(x1, y1, x2, y2){
-	var a = x1 - x2;
-	var b = y1 - y2;
-	return Math.sqrt( a*a + b*b  );
 }
 
 function detectHit(x, y){
@@ -412,7 +310,7 @@ function drawSegment(ctx, x1, y1, x2, y2, idx){
 	ctx.moveTo(x1, y1);
 	ctx.lineTo(x2, y2);
 	ctx.lineWidth = 4;
-	ctx.strokeStyle = 'hsl(' + idx + ', 100%, 50%)';
+	ctx.strokeStyle = 'hsl(' + idx * 2 + ', 100%, 50%)';
 	ctx.stroke();
 }
 
@@ -461,11 +359,15 @@ function handleEnd(evt) {
 			foundWord = foundWord + word[hitIdx[i]];
 		}
 
-		for(var a = 0; a < answers.length; a++){
-			if(answers[a].answer == foundWord) {
-				answers[a].found = true;
-				renderTable();
-			}
+		v = validateWord(foundWord)
+
+		if (v==0){ // no word
+			//flash? or sth
+		}else if (v==1){ // word but not answer
+			findBonusWord(foundWord)
+		}else if (v==2){ // answer
+			markAnswerFound(foundWord);
+			renderTable();
 		}
 	}
 
@@ -473,8 +375,8 @@ function handleEnd(evt) {
 	clear(true);
 }
 
-function setTitle(title){
-	document.getElementById("level").innerHTML = title;
+function findBonusWord(word){
+	bonusWords.push(word);
 }
 
 function finishLevelIfNeeded() {
@@ -499,20 +401,9 @@ function handleCancel(evt) {
 
 	for (var i = 0; i < touches.length; i++) {
 		var idx = ongoingTouchIndexById(touches[i].identifier);
-		ongoingTouches.splice(idx, 1);	// remove it; we're done
+		ongoingTouches.splice(idx, 1); // remove it; we're done
 	}
 	clear(true);
-}
-
-function colorForTouch(touch) {
-	var r = touch.identifier % 16;
-	var g = Math.floor(touch.identifier / 3) % 16;
-	var b = Math.floor(touch.identifier / 7) % 16;
-	r = r.toString(16); // make it a hex digit
-	g = g.toString(16); // make it a hex digit
-	b = b.toString(16); // make it a hex digit
-	var color = "#" + r + g + b;
-	return color;
 }
 
 function copyTouch(touch) {
@@ -534,8 +425,22 @@ function ongoingTouchIndexById(idToFind) {
 	}
 	return -1;		// not found
 }
-function log(msg) {
-	//var p = document.getElementById('log');
-	//p.innerHTML = msg + "\n" + p.innerHTML;
+
+function main() {
+	fetch('wordlists/nl.5000.json')
+		.then(function(response) {
+			if (!response.ok) {
+				throw new Error("HTTP error, status = " + response.status);
+			}
+			return response.json();
+		})
+		.then(function(json) {
+			wordList = json;
+			startup()
+		})
+		.catch(function(error) {
+			alert(error.message)
+		});
 }
 
+main();
