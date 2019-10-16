@@ -1,6 +1,6 @@
 var ongoingTouches = [];
 var wordList = [];
-var wordj = '';
+var wordj = "";
 var word = [];
 var positionLookup = [];
 var hitIdx = [];
@@ -18,33 +18,32 @@ var table_max_x = 0,
 var seed = 1;
 
 function syncUser() {
-	if(!localStorage.getItem('woordfuunUser')) {
+	if (!localStorage.getItem("woordfuunUser")) {
 		currentUser = {
-			username: 'helena',
-			level: level,
-		}
-		localStorage.setItem('woordfuunUser', JSON.stringify(currentUser));
+			username: "helena",
+			level: level
+		};
+		localStorage.setItem("woordfuunUser", JSON.stringify(currentUser));
 	} else {
-		currentUser = JSON.parse(localStorage.getItem('woordfuunUser'))
+		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
 		// Update level
-		if(level !== undefined){
+		if (level !== undefined) {
 			currentUser.level = level;
 		} else {
 			level = currentUser.level;
 		}
 		// Update user
-		localStorage.setItem('woordfuunUser', JSON.stringify(currentUser));
+		localStorage.setItem("woordfuunUser", JSON.stringify(currentUser));
 	}
 }
 
-
 function validateWord(word) {
-	if(!wordList.includes(word)){
+	if (!wordList.includes(word)) {
 		return 0;
 	}
 
-	for(var a = 0; a < answers.length; a++){
-		if(answers[a].answer == word) {
+	for (var a = 0; a < answers.length; a++) {
+		if (answers[a].answer == word) {
 			return 2;
 		}
 	}
@@ -52,18 +51,15 @@ function validateWord(word) {
 	return 1;
 }
 
-function markAnswerFound(word){
-	for(var a = 0; a < answers.length; a++){
-		if(answers[a].answer == word) {
+function markAnswerFound(word) {
+	for (var a = 0; a < answers.length; a++) {
+		if (answers[a].answer == word) {
 			answers[a].found = true;
 		}
 	}
 }
 
-function showBonusWords() {
-
-
-}
+function showBonusWords() {}
 
 function startup() {
 	// Obtain user's info + sync
@@ -93,44 +89,50 @@ function startup() {
 
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
-	setTitle('Level ' + (level + 1) + ' / ' + letters7.length);
+	setTitle("Level " + (level + 1) + " / " + letters7.length);
 	shuffle(letters7);
 	// get the word for this level
 	wordj = letters7[level];
-	word = wordj.split('');
+	word = wordj.split("");
 	shuffle(word);
 
-	valid_subsets = subsets(word)
+	valid_subsets = subsets(word);
 	// Top N?
-	shuffle(valid_subsets)
-	console.log(valid_subsets)
-	var lwords = [wordj].concat(valid_subsets.filter(function(w){ return w != wordj }).slice(0, 9));
-	console.log(lwords)
+	shuffle(valid_subsets);
+	console.log(valid_subsets);
+	var lwords = [wordj].concat(
+		valid_subsets
+			.filter(function(w) {
+				return w != wordj;
+			})
+			.slice(0, 9)
+	);
+	console.log(lwords);
 
 	var input_json = [];
-	for(var i = 0; i < lwords.length; i++){
-		input_json.push({answer: lwords[i]})
+	for (var i = 0; i < lwords.length; i++) {
+		input_json.push({ answer: lwords[i] });
 	}
 
 	var layout = generateLayout(input_json);
 
 	answers = layout.result;
-	for(var a = 0; a < answers.length; a++){
+	for (var a = 0; a < answers.length; a++) {
 		answers[a].startx -= 1;
 		answers[a].starty -= 1;
 	}
 
-	for(var i = 0; i < answers.length; i++){
-		if(answers[i].orientation == "down") {
-			pos = answers[i].starty + answers[i].answer.length
-			if(pos > table_max_y){
+	for (var i = 0; i < answers.length; i++) {
+		if (answers[i].orientation == "down") {
+			pos = answers[i].starty + answers[i].answer.length;
+			if (pos > table_max_y) {
 				table_max_y = pos;
 			}
 		}
 
-		if(answers[i].orientation == "across") {
-			pos = answers[i].startx + answers[i].answer.length
-			if(pos > table_max_x){
+		if (answers[i].orientation == "across") {
+			pos = answers[i].startx + answers[i].answer.length;
+			if (pos > table_max_x) {
 				table_max_x = pos;
 			}
 		}
@@ -145,59 +147,56 @@ function startup() {
 	offsetLeft = document.getElementsByTagName("canvas")[0].offsetLeft;
 
 	clear(true);
-
 }
 
 function renderTable() {
 	var el = document.getElementById("crossword");
-	el.innerHTML = '';
+	el.innerHTML = "";
 
 	// build empty table
-	for(var r = 0; r < table_max_y; r++){
-		for(var c = 0; c < table_max_x; c++){
-			table[r + ',' + c] = {blank: true, text: ' ', found: false};
+	for (var r = 0; r < table_max_y; r++) {
+		for (var c = 0; c < table_max_x; c++) {
+			table[r + "," + c] = { blank: true, text: " ", found: false };
 		}
 	}
 
-	for(var i = 0; i < answers.length; i++) {
-		a = answers[i]
-		r = a.starty + 0
-		c = a.startx + 0
+	for (var i = 0; i < answers.length; i++) {
+		a = answers[i];
+		r = a.starty + 0;
+		c = a.startx + 0;
 
-		for(var x = 0; x < a.answer.length; x++){
-			key = r + ',' + c
+		for (var x = 0; x < a.answer.length; x++) {
+			key = r + "," + c;
 
-			found = table[key].found || a.found
+			found = table[key].found || a.found;
 
-			table[key] = {blank: false, text: a.answer[x], found: found};
+			table[key] = { blank: false, text: a.answer[x], found: found };
 
-			if(a.orientation == 'down'){
+			if (a.orientation == "down") {
 				r += 1;
-			}
-			else{
+			} else {
 				c += 1;
 			}
 		}
 	}
 
+	tbl = document.createElement("table");
 
-	tbl = document.createElement('table');
+	for (var r = 0; r < table_max_y; r++) {
+		tr = document.createElement("tr");
+		for (var c = 0; c < table_max_x; c++) {
+			td = document.createElement("td");
+			key = r + "," + c;
 
-	for(var r = 0; r < table_max_y; r++){
-		tr = document.createElement('tr');
-		for(var c = 0; c < table_max_x; c++){
-			td = document.createElement('td');
-			key = r + ',' + c;
-
-			if(! table[key].blank) {
-				td.style = 'background: #1a2b33c7';
-				if( table[key].found ){
-					td.className = 'solved';
+			if (!table[key].blank) {
+				td.style = "background: #1a2b33c7";
+				if (table[key].found) {
+					td.className = "solved";
 				}
 				td.innerHTML = table[key].text;
 			}
 
-			tr.appendChild(td)
+			tr.appendChild(td);
 		}
 		tbl.appendChild(tr);
 	}
@@ -210,65 +209,63 @@ function renderTable() {
 
 	// Retain proportions
 	if (table_max_x / table_max_y > total_width / total_height) {
-		scale = total_width / table_max_x
+		scale = total_width / table_max_x;
 	} else {
-		scale = total_height / table_max_y
+		scale = total_height / table_max_y;
 	}
 
-	tmp_tbl_height = scale * table_max_y
-	tmp_tbl_width = scale * table_max_x
-	tbl.width = tmp_tbl_width
-	document.getElementsByTagName("table")[0].style = 'height: ' + tmp_tbl_height + 'px'
+	tmp_tbl_height = scale * table_max_y;
+	tmp_tbl_width = scale * table_max_x;
+	tbl.width = tmp_tbl_width;
+	document.getElementsByTagName("table")[0].style = "height: " + tmp_tbl_height + "px";
 }
 
-function clear(complete, highlight){
+function clear(complete, highlight) {
 	positionLookup = [];
 	var el = document.getElementsByTagName("canvas")[0];
 	var ctx = el.getContext("2d");
 	ctx.font = "30px Cursive";
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	if(complete){
+	if (complete) {
 		ongoingTouches = [];
 	}
 
 	center = w / 2;
-	halfwidth = 0.7 * w / 2;
-	for(var i = 0; i < word.length; i++){
-		x = Math.cos(2 * Math.PI * i / word.length - Math.PI / 2);
-		y = Math.sin(2 * Math.PI * i / word.length - Math.PI / 2);
+	halfwidth = (0.7 * w) / 2;
+	for (var i = 0; i < word.length; i++) {
+		x = Math.cos((2 * Math.PI * i) / word.length - Math.PI / 2);
+		y = Math.sin((2 * Math.PI * i) / word.length - Math.PI / 2);
 
-		rx = center + (x * halfwidth);
-		ry = center + (y * halfwidth);
+		rx = center + x * halfwidth;
+		ry = center + y * halfwidth;
 
-		positionLookup.push({'letter': word[i], 'x': rx, 'y': ry});
+		positionLookup.push({ letter: word[i], x: rx, y: ry });
 
 		ctx.beginPath();
 		ctx.arc(rx, ry, 30, 0, 2 * Math.PI);
 
-		if(hitIdx !== undefined && hitIdx.includes(i)){
+		if (hitIdx !== undefined && hitIdx.includes(i)) {
 			// will highlight somewhat.
-			if(highlight !== undefined && highlight == i){
-				ctx.fillStyle = 'hsl(' + 360 * (i / word.length) + ',100%, 50%)';
+			if (highlight !== undefined && highlight == i) {
+				ctx.fillStyle = "hsl(" + 360 * (i / word.length) + ",100%, 50%)";
+			} else {
+				ctx.fillStyle = "hsl(" + 360 * (i / word.length) + ",50%, 50%)";
 			}
-			else {
-				ctx.fillStyle = 'hsl(' + 360 * (i / word.length) + ',50%, 50%)';
-			}
-
 		} else {
-			ctx.fillStyle = '#1a2b33c7';
+			ctx.fillStyle = "#1a2b33c7";
 		}
 		ctx.fill();
 
-		ctx.fillStyle = 'white';
+		ctx.fillStyle = "white";
 		ctx.fillText(word[i], rx - 10, ry + 10);
 	}
 
-	if(highlight) {
+	if (highlight) {
 		redrawSegments();
 	}
 
-	if(complete) {
+	if (complete) {
 		hitIdx = [];
 	}
 }
@@ -283,13 +280,13 @@ function handleStart(evt) {
 	for (var i = 0; i < touches.length; i++) {
 		ongoingTouches.push(copyTouch(touches[i]));
 		ctx.beginPath();
-		ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false);	// a circle at the start
-		ctx.fillStyle = 'black';
+		ctx.arc(touches[i].pageX, touches[i].pageY, 4, 0, 2 * Math.PI, false); // a circle at the start
+		ctx.fillStyle = "black";
 		ctx.fill();
 	}
 }
 
-function detectHit(x, y){
+function detectHit(x, y) {
 	for (var i = 0; i < positionLookup.length; i++) {
 		d = distance(x, y, positionLookup[i].x, positionLookup[i].y);
 		if (d < 50) {
@@ -305,21 +302,21 @@ function detectHit(x, y){
 	}
 }
 
-function drawSegment(ctx, x1, y1, x2, y2, idx){
+function drawSegment(ctx, x1, y1, x2, y2, idx) {
 	ctx.beginPath();
 	ctx.moveTo(x1, y1);
 	ctx.lineTo(x2, y2);
 	ctx.lineWidth = 4;
-	ctx.strokeStyle = 'hsl(' + idx * 2 + ', 100%, 50%)';
+	ctx.strokeStyle = "hsl(" + idx * 2 + ", 100%, 50%)";
 	ctx.stroke();
 }
 
-function redrawSegments(){
+function redrawSegments() {
 	var el = document.getElementsByTagName("canvas")[0];
 	var ctx = el.getContext("2d");
 
-	for(var i = 0; i < ongoingTouches.length - 1; i++){
-		drawSegment(ctx, ongoingTouches[i].pageX, ongoingTouches[i].pageY, ongoingTouches[i + 1].pageX, ongoingTouches[i + 1].pageY, i)
+	for (var i = 0; i < ongoingTouches.length - 1; i++) {
+		drawSegment(ctx, ongoingTouches[i].pageX, ongoingTouches[i].pageY, ongoingTouches[i + 1].pageX, ongoingTouches[i + 1].pageY, i);
 	}
 }
 
@@ -338,7 +335,14 @@ function handleMove(evt) {
 		if (idx >= 0) {
 			detectHit(x, y);
 
-			drawSegment(ctx, ongoingTouches[ongoingTouches.length - 1].pageX, ongoingTouches[ongoingTouches.length - 1].pageY, x, y, ongoingTouches.length);
+			drawSegment(
+				ctx,
+				ongoingTouches[ongoingTouches.length - 1].pageX,
+				ongoingTouches[ongoingTouches.length - 1].pageY,
+				x,
+				y,
+				ongoingTouches.length
+			);
 
 			ongoingTouches.push(copyTouch(touches[i]));
 		} else {
@@ -353,19 +357,22 @@ function handleEnd(evt) {
 	var ctx = el.getContext("2d");
 	var touches = evt.changedTouches;
 
-	if(hitIdx.length > 0){
-		foundWord = '';
-		for(var i = 0; i < hitIdx.length; i++){
+	if (hitIdx.length > 0) {
+		foundWord = "";
+		for (var i = 0; i < hitIdx.length; i++) {
 			foundWord = foundWord + word[hitIdx[i]];
 		}
 
-		v = validateWord(foundWord)
+		v = validateWord(foundWord);
 
-		if (v==0){ // no word
+		if (v == 0) {
+			// no word
 			//flash? or sth
-		}else if (v==1){ // word but not answer
-			findBonusWord(foundWord)
-		}else if (v==2){ // answer
+		} else if (v == 1) {
+			// word but not answer
+			findBonusWord(foundWord);
+		} else if (v == 2) {
+			// answer
 			markAnswerFound(foundWord);
 			renderTable();
 		}
@@ -375,13 +382,13 @@ function handleEnd(evt) {
 	clear(true);
 }
 
-function findBonusWord(word){
+function findBonusWord(word) {
 	bonusWords.push(word);
 }
 
 function finishLevelIfNeeded() {
-	for(var q = 0; q < answers.length; q++){
-		if(!answers[q].found){
+	for (var q = 0; q < answers.length; q++) {
+		if (!answers[q].found) {
 			return;
 		}
 	}
@@ -389,10 +396,10 @@ function finishLevelIfNeeded() {
 	advanceLevel(2000);
 }
 
-function advanceLevel(timeout){
-	setTitle('🎉 Solved 🎉');
+function advanceLevel(timeout) {
+	setTitle("🎉 Solved 🎉");
 	level++;
-	setTimeout(startup, timeout)
+	setTimeout(startup, timeout);
 }
 
 function handleCancel(evt) {
@@ -423,11 +430,11 @@ function ongoingTouchIndexById(idToFind) {
 			return i;
 		}
 	}
-	return -1;		// not found
+	return -1; // not found
 }
 
 function main() {
-	fetch('wordlists/nl.5000.json')
+	fetch("wordlists/nl.5000.json")
 		.then(function(response) {
 			if (!response.ok) {
 				throw new Error("HTTP error, status = " + response.status);
@@ -436,10 +443,10 @@ function main() {
 		})
 		.then(function(json) {
 			wordList = json;
-			startup()
+			startup();
 		})
 		.catch(function(error) {
-			alert(error.message)
+			alert(error.message);
 		});
 }
 
