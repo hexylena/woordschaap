@@ -4,12 +4,15 @@
 	<head>
 		<meta charset="utf-8">
 		 <meta name="viewport" content="width=device-width, initial-scale=1">
-		<link href="style.css" rel="stylesheet" type="text/css" />
 		<meta name="theme-color" content="#ccc315">
 		<link rel="manifest" href="manifest.json">
+		<link href="style.css" rel="stylesheet" type="text/css" />
 		<link href="https://fonts.googleapis.com/css?family=Fredoka+One&display=swap" rel="stylesheet">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/2.0.0/trianglify.min.js"></script>
-		<script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+		<!-- Optional: include a polyfill for ES6 Promises for IE11 and Android browser -->
+		<script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
+
 		<script src="layout_generator.js"></script>
 
 		<title>Woordschap</title>
@@ -17,15 +20,16 @@
 
 	</head>
 	<body>
-		<div id="level">Level ?</div>
-		<div id="crossword"></div>
-		<div id="controls">
-			<div id="controlholder">
-				<button id="hint">Hint</button>
-				<button id="bonus">Bonus</button>
-			</div>
-			<div id="canvasholder">
-				<canvas id="canvas"></canvas>
+		<div id="main">
+			<div id="level">Level ?</div>
+			<div id="crossword"></div>
+			<div id="controls">
+				<div id="controlholder">
+					<button id="bonus" onclick="showBonusWords()">Bonus</button>
+				</div>
+				<div id="canvasholder">
+					<canvas id="canvas"></canvas>
+				</div>
 			</div>
 		</div>
 		<script src="lib.js" type="text/javascript"></script>
@@ -35,30 +39,6 @@
 
 
 
-<!-- [1] -->
-<div id="modal-1" aria-hidden="true">
-	<!-- [2] -->
-	<div tabindex="-1" data-micromodal-close>
-		<!-- [3] -->
-		<div role="dialog" aria-modal="true" aria-labelledby="modal-1-title" >
-
-
-			<header>
-				<h2 id="modal-1-title">
-					Modal Title
-				</h2>
-
-				<!-- [4] -->
-				<button aria-label="Close modal" data-micromodal-close></button>
-			</header>
-
-			<div id="modal-1-content">
-				Modal Content
-			</div>
-
-		</div>
-	</div>
-</div>
 
 	</body>
 </html>

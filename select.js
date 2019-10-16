@@ -59,7 +59,22 @@ function markAnswerFound(word) {
 	}
 }
 
-function showBonusWords() {}
+function showBonusWords() {
+	//MicroModal.show('modal-1');
+	//setTimeout(function(){ MicroModal.close('modal-1'); }, 1000)
+	contents = '<ul id="bonuslist">';
+	for (var i = 0; i < bonusWords.length; i++) {
+		contents += "<li>" + bonusWords[i] + "</li>";
+	}
+	contents += "</ul>";
+
+	Swal.fire({
+		title: "Bonus Woords",
+		html: contents
+		//type: 'error',
+		//confirmButtonText: 'Cool'
+	});
+}
 
 function startup() {
 	// Obtain user's info + sync
@@ -72,6 +87,7 @@ function startup() {
 	w = document.body.clientWidth * 0.7;
 	p.width = w;
 	p.height = w;
+	p.style = "height: " + w + "px;";
 
 	var el = document.getElementsByTagName("canvas")[0];
 	el.addEventListener("touchstart", handleStart, false);
@@ -384,6 +400,8 @@ function handleEnd(evt) {
 
 function findBonusWord(word) {
 	bonusWords.push(word);
+	var el = document.getElementById("bonus");
+	el.innerHTML = "Bonus (" + bonusWords.length + ")";
 }
 
 function finishLevelIfNeeded() {
@@ -397,9 +415,14 @@ function finishLevelIfNeeded() {
 }
 
 function advanceLevel(timeout) {
-	setTitle("🎉 Solved 🎉");
+	Swal.fire({
+		title: "🎉 Solved 🎉",
+		text: "You solved it!",
+		type: "success",
+		timer: 1500
+	});
 	level++;
-	setTimeout(startup, timeout);
+	startup();
 }
 
 function handleCancel(evt) {

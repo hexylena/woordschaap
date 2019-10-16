@@ -17,11 +17,13 @@ td.solved {
 }
 
 #canvasholder {
-	text-align: center
+	text-align: center;
+	display:flex;
+	justify-content: flex-end;
+	flex-direction: column;
 }
 
 canvas {
-	margin: auto;
 }
 
 table {
@@ -48,11 +50,14 @@ html {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
+	justify-content: flex-end;
+	padding: 0.2em;
 }
 
 #controls {
 	display: flex;
 	flex-direction: row;
+	flex-grow: 2;
 }
 
 body {
@@ -61,4 +66,26 @@ body {
 	display: flex;
 	justify-content: space-between;
 	margin: 0px;
+}
+
+#main {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+#crossword {
+}
+
+button {
+	background: #3a3e4f;
+	border: 0px;
+	margin: 0.1em;
+	padding: 1em;
+	border-radius: 10%;
+	color: white;
+	font-size: 120%;
+}
+
+ul#bonuslist li {
+	text-align: left;
 }
