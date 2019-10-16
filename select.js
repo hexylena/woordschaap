@@ -69,7 +69,7 @@ function showBonusWords() {
 	contents += "</ul>";
 
 	Swal.fire({
-		title: "Bonus Woords",
+		title: "Bonus Woorden",
 		html: contents
 		//type: 'error',
 		//confirmButtonText: 'Cool'
