@@ -8,7 +8,6 @@ var answers = [];
 var table = {};
 var offsetTop = 0;
 var offsetLeft = 0;
-var level;
 var currentUser;
 var bonusWords = [];
 
@@ -20,21 +19,17 @@ var seed = 1;
 function syncUser() {
 	if (!localStorage.getItem("woordfuunUser")) {
 		currentUser = {
-			username: "helena",
-			level: level
+			username: "baa",
+			level: 0
 		};
-		localStorage.setItem("woordfuunUser", JSON.stringify(currentUser));
-	} else {
-		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
-		// Update level
-		if (level !== undefined) {
-			currentUser.level = level;
-		} else {
-			level = currentUser.level;
-		}
-		// Update user
-		localStorage.setItem("woordfuunUser", JSON.stringify(currentUser));
 	}
+
+	if (currentUser === undefined){
+		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
+		return;
+	}
+
+	localStorage.setItem("woordfuunUser", JSON.stringify(currentUser));
 }
 
 function validateWord(word) {
@@ -99,18 +94,18 @@ function startup() {
 	var pattern = Trianglify({
 		width: window.innerWidth,
 		height: window.innerHeight,
-		seed: level
+		seed: currentUser.level
 	});
 	document.body.style.backgroundImage = "url('" + pattern.png() + "')";
 
 	// Seed predictably
-	randomSetSeed(level);
+	randomSetSeed(currentUser.level);
 
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
-	setTitle("Level " + (level + 1) + " / " + letters7.length);
+	setTitle("Level " + (currentUser.level + 1) + " / " + letters7.length);
 	// get the word for this level
-	wordj = letters7[level];
+	wordj = letters7[currentUser.level];
 	word = wordj.split("");
 	shuffle(word);
 
@@ -420,7 +415,7 @@ function advanceLevel(timeout) {
 		type: "success",
 		timer: 1500
 	});
-	level++;
+	currentUser.level++;
 	startup();
 }
 
@@ -467,9 +462,9 @@ function main() {
 			wordList = json;
 			startup();
 		})
-		.catch(function(error) {
-			alert(error.message);
-		});
+		//.catch(function(error) {
+			//alert(error.message);
+		//});
 }
 
 main();
