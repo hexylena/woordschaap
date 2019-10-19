@@ -394,9 +394,11 @@ function handleEnd(evt) {
 }
 
 function findBonusWord(word) {
-	bonusWords.push(word);
-	var el = document.getElementById("bonus");
-	el.innerHTML = "Bonus (" + bonusWords.length + ")";
+	if(!bonusWords.includes(word)){
+		bonusWords.push(word);
+		var el = document.getElementById("bonus");
+		el.innerHTML = "Bonus (" + bonusWords.length + ")";
+	}
 }
 
 function finishLevelIfNeeded() {
