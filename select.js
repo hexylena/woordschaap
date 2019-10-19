@@ -34,7 +34,7 @@ function syncUser() {
 }
 
 function validateWord(word) {
-	if (!fullWordList.includes(word)) {
+	if (!fullWordList.includes(word) && !wordList.includes(word)) {
 		return 0;
 	}
 
@@ -394,11 +394,17 @@ function handleEnd(evt) {
 }
 
 function findBonusWord(word) {
-	if(!bonusWords.includes(word)){
-		bonusWords.push(word);
-		var el = document.getElementById("bonus");
-		el.innerHTML = "Bonus (" + bonusWords.length + ")";
+	if(bonusWords.includes(word)){
+		return;
 	}
+
+	if(word.length < 3){
+		return;
+	}
+
+	bonusWords.push(word);
+	var el = document.getElementById("bonus");
+	el.innerHTML = "Bonus (" + bonusWords.length + ")";
 }
 
 function finishLevelIfNeeded() {
@@ -418,6 +424,7 @@ function advanceLevel(timeout) {
 		type: "success",
 		timer: 1500
 	});
+	bonusWords = [];
 	currentUser.level++;
 	startup();
 }
