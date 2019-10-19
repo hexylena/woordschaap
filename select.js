@@ -1,4 +1,5 @@
 var ongoingTouches = [];
+var fullWordList = [];
 var wordList = [];
 var wordj = "";
 var word = [];
@@ -33,7 +34,7 @@ function syncUser() {
 }
 
 function validateWord(word) {
-	if (!wordList.includes(word)) {
+	if (!fullWordList.includes(word)) {
 		return 0;
 	}
 
@@ -460,7 +461,19 @@ function main() {
 		})
 		.then(function(json) {
 			wordList = json;
-			startup();
+
+			fetch("wordlists/nl.full.json")
+				.then(function(response) {
+					if (!response.ok) {
+						throw new Error("HTTP error, status = " + response.status);
+					}
+					return response.json();
+				})
+				.then(function(json2){
+					fullWordList = json2;
+
+					startup();
+				})
 		})
 		//.catch(function(error) {
 			//alert(error.message);
