@@ -1,4 +1,4 @@
-TARGETS:=nl.1000.json nl.2000.json nl.3000.json nl.4000.json nl.5000.json
+TARGETS:=nl.1000.json nl.2000.json nl.3000.json nl.4000.json nl.5000.json nl.full.json
 all: $(TARGETS)
 
 clean:
@@ -18,5 +18,9 @@ nl.4000.json: nl.txt
 
 nl.5000.json: nl.txt
 	head -n 5000 nl.txt | cut -f2 | awk '(length <= 7)' | sed 's/^\|$$/"/g' | jq '[ . ]' | jq -s add -c > nl.5000.json
+
+
+nl.full.json: nl.full.txt
+	cat nl.full.txt| sed 's/^\|$$/"/g' | jq '[ . ]' | jq -s add -c > nl.full.json
 
 .PHONY = clean all
