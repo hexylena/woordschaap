@@ -15,6 +15,7 @@ var offsetLeft = 0;
 var currentUser;
 var bonusWords = [];
 var totalBonusWords = 0;
+var HINT_COST = 25;
 
 var table_max_x = 0,
 	table_max_y = 0;
@@ -25,12 +26,21 @@ function syncUser() {
 	if (!localStorage.getItem("woordfuunUser")) {
 		currentUser = {
 			username: "baa",
-			level: 0
+			level: 0,
+			money: 0,
 		};
 	}
 
 	if (currentUser === undefined) {
 		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
+
+		if(currentUser.level === undefined){
+			currentUser.level = 0;
+		}
+
+		if(currentUser.money === undefined){
+			currentUser.money = 0;
+		}
 		return;
 	}
 
@@ -57,6 +67,7 @@ function markAnswerFound(word) {
 			answers[a].found = true;
 		}
 	}
+	updateMoney(3);
 }
 
 function wisselWords() {
@@ -65,6 +76,7 @@ function wisselWords() {
 }
 
 function showHint() {
+	currentUser.money -= HINT_COST;
 	renderTable({ hint: true });
 }
 
@@ -136,16 +148,14 @@ function startup() {
 		h2 = (hsl[0] + 0.5) % 1;
 		themeColor = hslToRgb(h2, Math.min(1, 2 * hsl[1]), Math.min(0.3, hsl[2]));
 
-		buttons = document.getElementsByTagName("button");
-		for (var b = 0; b < buttons.length; b++) {
-			buttons[b].style.backgroundColor = themeColor + "cc";
-		}
-
 		patternCacheIdx = Math.floor(currentUser.level / 10);
 	}
 
 	// Seed predictably
 	randomSetSeed(currentUser.level);
+	updateMoney(0);
+
+	document.getElementById("hint").innerHTML = 'Hint (' + HINT_COST + '€)'
 
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
@@ -448,9 +458,25 @@ function handleEnd(evt) {
 			renderTable();
 		}
 	}
-
+	updateMoney(0);
 	finishLevelIfNeeded();
 	clear(true);
+}
+
+function updateMoney(amount){
+	currentUser.money += amount;
+	document.getElementById("hint").disabled = currentUser.money < HINT_COST;
+	document.getElementById("money").innerHTML = currentUser.money + '€';
+
+	buttons = document.getElementsByTagName("button");
+	for (var b = 0; b < buttons.length; b++) {
+		console.log(buttons[b], !buttons[b].disabled)
+		if(!buttons[b].disabled){
+			buttons[b].style.backgroundColor = themeColor + "cc";
+		} else {
+			buttons[b].style.backgroundColor = "#dddddd";
+		}
+	}
 }
 
 function findBonusWord(word) {
@@ -463,6 +489,7 @@ function findBonusWord(word) {
 	}
 
 	bonusWords.push(word);
+	updateMoney(word.length);
 	var el = document.getElementById("bonus");
 	el.innerHTML = "Bonus (" + bonusWords.length + "/" + totalBonusWords + ")";
 }

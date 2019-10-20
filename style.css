@@ -32,15 +32,17 @@ table {
 	table-layout: fixed;
 }
 
-#level {
+#topbar{
 	text-align: center;
 	font-size: 180%;
 	font-family: 'Fredoka One', cursive;
 	color: white;
-
 	padding: 0.1em;
 	background: #333a;
+	display: flex;
+	justify-content: space-between;
 }
+
 
 html {
 	height: 100%;
@@ -84,7 +86,13 @@ button {
 	border-radius: 10%;
 	color: white;
 	font-size: 120%;
+	font-family: 'Fredoka One', cursive;
 }
+
+button:disabled {
+	background: #dddddd;
+}
+
 
 ul#bonuslist li {
 	text-align: left;
