@@ -304,9 +304,9 @@ function clear(complete, highlight) {
 		if (hitIdx !== undefined && hitIdx.includes(i)) {
 			// will highlight somewhat.
 			if (highlight !== undefined && highlight == i) {
-				ctx.fillStyle = "hsl(" + 360 * (i / word.length) + ",100%, 50%)";
+				ctx.fillStyle = "hsl(" + 360 * (hitIdx.indexOf(i) / word.length) + ",100%, 50%)";
 			} else {
-				ctx.fillStyle = "hsl(" + 360 * (i / word.length) + ",50%, 50%)";
+				ctx.fillStyle = "hsl(" + 360 * (hitIdx.indexOf(i) / word.length) + ",50%, 50%)";
 			}
 		} else {
 			ctx.fillStyle = themeColor + "cc";
