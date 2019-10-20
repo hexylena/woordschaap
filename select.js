@@ -1,6 +1,9 @@
 var ongoingTouches = [];
 var fullWordList = [];
 var wordList = [];
+var pattern;
+var patternCacheIdx;
+var themeColor;
 var wordj = "";
 var word = [];
 var positionLookup = [];
@@ -25,7 +28,7 @@ function syncUser() {
 		};
 	}
 
-	if (currentUser === undefined){
+	if (currentUser === undefined) {
 		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
 		return;
 	}
@@ -92,12 +95,44 @@ function startup() {
 	el.addEventListener("touchmove", handleMove, false);
 	console.log("initialized.");
 
-	var pattern = Trianglify({
-		width: window.innerWidth,
-		height: window.innerHeight,
-		seed: currentUser.level
-	});
-	document.body.style.backgroundImage = "url('" + pattern.png() + "')";
+	if (Math.floor(currentUser.level / 10) != patternCacheIdx) {
+		pattern = Trianglify({
+			width: window.innerWidth,
+			height: window.innerHeight,
+			seed: Math.floor(currentUser.level / 10)
+		});
+		document.body.style.backgroundImage = "url('" + pattern.png() + "')";
+
+		var ra = 0,
+			rb = 0,
+			rg = 0;
+
+		for (var i = 0; i < pattern.opts.x_colors.length; i++) {
+			ra += parseInt(pattern.opts.x_colors[i].substring(1, 3), 16);
+			rg += parseInt(pattern.opts.x_colors[i].substring(3, 5), 16);
+			rb += parseInt(pattern.opts.x_colors[i].substring(5, 7), 16);
+		}
+		for (var i = 0; i < pattern.opts.y_colors.length; i++) {
+			ra += parseInt(pattern.opts.y_colors[i].substring(1, 3), 16);
+			rg += parseInt(pattern.opts.y_colors[i].substring(3, 5), 16);
+			rb += parseInt(pattern.opts.y_colors[i].substring(5, 7), 16);
+		}
+
+		ra /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+		rg /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+		rb /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+
+		hsl = rgbToHsl(ra, rg, rb);
+		h2 = (hsl[0] + 0.5) % 1;
+		themeColor = hslToRgb(h2, Math.min(1, 2 * hsl[1]), Math.min(0.3, hsl[2]));
+
+		buttons = document.getElementsByTagName("button");
+		for (var b = 0; b < buttons.length; b++) {
+			buttons[b].style.backgroundColor = themeColor + "cc";
+		}
+
+		patternCacheIdx = Math.floor(currentUser.level / 10);
+	}
 
 	// Seed predictably
 	randomSetSeed(currentUser.level);
@@ -200,7 +235,7 @@ function renderTable() {
 			key = r + "," + c;
 
 			if (!table[key].blank) {
-				td.style = "background: #1a2b33c7";
+				td.style = "background: " + themeColor + "cc";
 				if (table[key].found) {
 					td.className = "solved";
 				}
@@ -264,7 +299,7 @@ function clear(complete, highlight) {
 				ctx.fillStyle = "hsl(" + 360 * (i / word.length) + ",50%, 50%)";
 			}
 		} else {
-			ctx.fillStyle = "#1a2b33c7";
+			ctx.fillStyle = themeColor + "cc";
 		}
 		ctx.fill();
 
@@ -394,11 +429,11 @@ function handleEnd(evt) {
 }
 
 function findBonusWord(word) {
-	if(bonusWords.includes(word)){
+	if (bonusWords.includes(word)) {
 		return;
 	}
 
-	if(word.length < 3){
+	if (word.length < 3) {
 		return;
 	}
 
@@ -417,15 +452,19 @@ function finishLevelIfNeeded() {
 	advanceLevel(2000);
 }
 
-function advanceLevel(timeout) {
+function advanceLevel(timeout, levels) {
 	Swal.fire({
 		title: "🎉 Solved 🎉",
 		text: "You solved it!",
 		type: "success",
-		timer: 1500
+		timer: 4000
 	});
 	bonusWords = [];
-	currentUser.level++;
+	if (levels !== undefined) {
+		currentUser.level += levels;
+	} else {
+		currentUser.level++;
+	}
 	startup();
 }
 
@@ -478,15 +517,15 @@ function main() {
 					}
 					return response.json();
 				})
-				.then(function(json2){
+				.then(function(json2) {
 					fullWordList = json2;
 
 					startup();
-				})
-		})
-		//.catch(function(error) {
-			//alert(error.message);
-		//});
+				});
+		});
+	//.catch(function(error) {
+	//alert(error.message);
+	//});
 }
 
 main();
