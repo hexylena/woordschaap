@@ -15,7 +15,8 @@ var offsetLeft = 0;
 var currentUser;
 var bonusWords = [];
 var totalBonusWords = 0;
-var HINT_COST = 25;
+var HINT_COST = 25,
+	FREE_MONEY = 40;
 
 var table_max_x = 0,
 	table_max_y = 0;
@@ -27,7 +28,7 @@ function syncUser() {
 		currentUser = {
 			username: "baa",
 			level: 0,
-			money: 0,
+			money: FREE_MONEY,
 		};
 	}
 
@@ -39,7 +40,7 @@ function syncUser() {
 		}
 
 		if(currentUser.money === undefined){
-			currentUser.money = 0;
+			currentUser.money = FREE_MONEY;
 		}
 		return;
 	}
@@ -76,7 +77,7 @@ function wisselWords() {
 }
 
 function showHint() {
-	currentUser.money -= HINT_COST;
+	updateMoney(-HINT_COST)
 	renderTable({ hint: true });
 }
 
@@ -214,8 +215,6 @@ function startup() {
 			}
 		}
 	}
-
-	console.log(answers);
 
 	// build empty table
 	for (var r = 0; r < table_max_y; r++) {
@@ -470,7 +469,6 @@ function updateMoney(amount){
 
 	buttons = document.getElementsByTagName("button");
 	for (var b = 0; b < buttons.length; b++) {
-		console.log(buttons[b], !buttons[b].disabled)
 		if(!buttons[b].disabled){
 			buttons[b].style.backgroundColor = themeColor + "cc";
 		} else {
