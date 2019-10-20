@@ -14,6 +14,7 @@ var offsetTop = 0;
 var offsetLeft = 0;
 var currentUser;
 var bonusWords = [];
+var totalBonusWords = 0;
 
 var table_max_x = 0,
 	table_max_y = 0;
@@ -140,12 +141,21 @@ function startup() {
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
 	setTitle("Level " + (currentUser.level + 1) + " / " + letters7.length);
+
 	// get the word for this level
 	wordj = letters7[currentUser.level];
 	word = wordj.split("");
 	shuffle(word);
 
-	valid_subsets = subsets(word);
+	totalBonusWords = 0;
+	invalid_subsets = subsets(word);
+	valid_subsets = only5k(invalid_subsets);
+
+	for(var q = 0; q < invalid_subsets.length; q++){
+		if(fullWordList.includes(invalid_subsets[q]) && !wordList.includes(invalid_subsets[q])){
+			totalBonusWords += 1;
+		}
+	}
 	// Top N?
 	shuffle(valid_subsets);
 	var lwords = [wordj].concat(
@@ -439,7 +449,7 @@ function findBonusWord(word) {
 
 	bonusWords.push(word);
 	var el = document.getElementById("bonus");
-	el.innerHTML = "Bonus (" + bonusWords.length + ")";
+	el.innerHTML = "Bonus (" + bonusWords.length + "/" + totalBonusWords + ")";
 }
 
 function finishLevelIfNeeded() {
@@ -449,7 +459,7 @@ function finishLevelIfNeeded() {
 		}
 	}
 
-	advanceLevel(2000);
+	advanceLevel(4000);
 }
 
 function advanceLevel(timeout, levels) {
@@ -457,7 +467,7 @@ function advanceLevel(timeout, levels) {
 		title: "🎉 Solved 🎉",
 		text: "You solved it!",
 		type: "success",
-		timer: 4000
+		timer: timeout
 	});
 	bonusWords = [];
 	if (levels !== undefined) {

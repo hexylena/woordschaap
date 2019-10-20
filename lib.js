@@ -49,7 +49,7 @@ function subsets(array) {
 		permutations = perm(selections[i]);
 		for (var j = 0; j < permutations.length; j++) {
 			p = permutations[j].join("");
-			if (wordList.includes(p)) {
+			if (wordList.includes(p) || fullWordList.includes(p)) {
 				if (!valid_subsets.includes(p)) {
 					valid_subsets.push(p);
 				}
@@ -57,6 +57,12 @@ function subsets(array) {
 		}
 	}
 	return valid_subsets;
+}
+
+function only5k(array) {
+	return array.filter(function(p){
+		return wordList.includes(p)
+	})
 }
 
 // https://www.frankmitchell.org/2015/01/fisher-yates/
