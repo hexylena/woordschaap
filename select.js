@@ -59,6 +59,15 @@ function markAnswerFound(word) {
 	}
 }
 
+function wisselWords() {
+	shuffle(word);
+	clear();
+}
+
+function showHint() {
+	renderTable({ hint: true });
+}
+
 function showBonusWords() {
 	//MicroModal.show('modal-1');
 	//setTimeout(function(){ MicroModal.close('modal-1'); }, 1000)
@@ -151,8 +160,8 @@ function startup() {
 	invalid_subsets = subsets(word);
 	valid_subsets = only5k(invalid_subsets);
 
-	for(var q = 0; q < invalid_subsets.length; q++){
-		if(fullWordList.includes(invalid_subsets[q]) && !wordList.includes(invalid_subsets[q])){
+	for (var q = 0; q < invalid_subsets.length; q++) {
+		if (fullWordList.includes(invalid_subsets[q]) && !wordList.includes(invalid_subsets[q])) {
 			totalBonusWords += 1;
 		}
 	}
@@ -198,6 +207,13 @@ function startup() {
 
 	console.log(answers);
 
+	// build empty table
+	for (var r = 0; r < table_max_y; r++) {
+		for (var c = 0; c < table_max_x; c++) {
+			table[r + "," + c] = { blank: true, text: " ", found: false };
+		}
+	}
+
 	renderTable();
 	offsetTop = document.getElementsByTagName("canvas")[0].offsetTop;
 	offsetLeft = document.getElementsByTagName("canvas")[0].offsetLeft;
@@ -205,16 +221,9 @@ function startup() {
 	clear(true);
 }
 
-function renderTable() {
+function renderTable(opts) {
 	var el = document.getElementById("crossword");
 	el.innerHTML = "";
-
-	// build empty table
-	for (var r = 0; r < table_max_y; r++) {
-		for (var c = 0; c < table_max_x; c++) {
-			table[r + "," + c] = { blank: true, text: " ", found: false };
-		}
-	}
 
 	for (var i = 0; i < answers.length; i++) {
 		a = answers[i];
@@ -224,7 +233,13 @@ function renderTable() {
 		for (var x = 0; x < a.answer.length; x++) {
 			key = r + "," + c;
 
-			found = table[key].found || a.found;
+			found = table[key].found || a.found || false;
+
+			if (opts !== undefined && !found && opts.hint == true) {
+				found = true;
+				table[key].found = true;
+				opts.hint = false;
+			}
 
 			table[key] = { blank: false, text: a.answer[x], found: found };
 

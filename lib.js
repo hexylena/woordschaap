@@ -60,9 +60,9 @@ function subsets(array) {
 }
 
 function only5k(array) {
-	return array.filter(function(p){
-		return wordList.includes(p)
-	})
+	return array.filter(function(p) {
+		return wordList.includes(p);
+	});
 }
 
 // https://www.frankmitchell.org/2015/01/fisher-yates/
