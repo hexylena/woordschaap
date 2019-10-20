@@ -28,18 +28,18 @@ function syncUser() {
 		currentUser = {
 			username: "baa",
 			level: 0,
-			money: FREE_MONEY,
+			money: FREE_MONEY
 		};
 	}
 
 	if (currentUser === undefined) {
 		currentUser = JSON.parse(localStorage.getItem("woordfuunUser"));
 
-		if(currentUser.level === undefined){
+		if (currentUser.level === undefined) {
 			currentUser.level = 0;
 		}
 
-		if(currentUser.money === undefined){
+		if (currentUser.money === undefined) {
 			currentUser.money = FREE_MONEY;
 		}
 		return;
@@ -77,7 +77,7 @@ function wisselWords() {
 }
 
 function showHint() {
-	updateMoney(-HINT_COST)
+	updateMoney(-HINT_COST);
 	renderTable({ hint: true });
 }
 
@@ -156,7 +156,7 @@ function startup() {
 	randomSetSeed(currentUser.level);
 	updateMoney(0);
 
-	document.getElementById("hint").innerHTML = 'Hint (' + HINT_COST + '€)'
+	document.getElementById("hint").innerHTML = "Hint (" + HINT_COST + "€)";
 
 	// Pick out a word that's seven letters long
 	letters7 = wordList.filter(word => word.length == 7);
@@ -170,6 +170,9 @@ function startup() {
 	totalBonusWords = 0;
 	invalid_subsets = subsets(word);
 	valid_subsets = only5k(invalid_subsets);
+	if(level % 2 == 0){
+		valid_subsets = valid_subsets.filter(word => word.length > 3);
+	}
 
 	for (var q = 0; q < invalid_subsets.length; q++) {
 		if (fullWordList.includes(invalid_subsets[q]) && !wordList.includes(invalid_subsets[q])) {
@@ -462,14 +465,14 @@ function handleEnd(evt) {
 	clear(true);
 }
 
-function updateMoney(amount){
+function updateMoney(amount) {
 	currentUser.money += amount;
 	document.getElementById("hint").disabled = currentUser.money < HINT_COST;
-	document.getElementById("money").innerHTML = currentUser.money + '€';
+	document.getElementById("money").innerHTML = currentUser.money + "€";
 
 	buttons = document.getElementsByTagName("button");
 	for (var b = 0; b < buttons.length; b++) {
-		if(!buttons[b].disabled){
+		if (!buttons[b].disabled) {
 			buttons[b].style.backgroundColor = themeColor + "cc";
 		} else {
 			buttons[b].style.backgroundColor = "#dddddd";
