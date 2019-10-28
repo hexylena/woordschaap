@@ -8,18 +8,14 @@ var wordj = "";
 var word = [];
 var positionLookup = [];
 var hitIdx = [];
-var answers = [];
-var table = {};
 var offsetTop = 0;
 var offsetLeft = 0;
 var currentUser;
 var bonusWords = [];
 var totalBonusWords = 0;
+var lwords = [];
 var HINT_COST = 25,
 	FREE_MONEY = 40;
-
-var table_max_x = 0,
-	table_max_y = 0;
 
 var seed = 1;
 
@@ -28,6 +24,7 @@ function syncUser() {
 		currentUser = {
 			username: "baa",
 			level: 0,
+			answers: [],
 			money: FREE_MONEY
 		};
 	}
@@ -42,6 +39,16 @@ function syncUser() {
 		if (currentUser.money === undefined) {
 			currentUser.money = FREE_MONEY;
 		}
+
+		if (currentUser.answers === undefined) {
+			currentUser.answers = [];
+		}
+
+		if (currentUser.table === undefined) {
+			currentUser.table = {};
+			currentUser.table_max_x = 0;
+			currentUser.table_max_y = 0;
+		}
 		return;
 	}
 
@@ -53,8 +60,8 @@ function validateWord(word) {
 		return 0;
 	}
 
-	for (var a = 0; a < answers.length; a++) {
-		if (answers[a].answer == word) {
+	for (var a = 0; a < currentUser.answers.length; a++) {
+		if (currentUser.answers[a].answer == word) {
 			return 2;
 		}
 	}
@@ -63,12 +70,13 @@ function validateWord(word) {
 }
 
 function markAnswerFound(word) {
-	for (var a = 0; a < answers.length; a++) {
-		if (answers[a].answer == word) {
-			answers[a].found = true;
+	for (var a = 0; a < currentUser.answers.length; a++) {
+		if (currentUser.answers[a].answer == word) {
+			currentUser.answers[a].found = true;
 		}
 	}
 	updateMoney(3);
+	syncUser();
 }
 
 function wisselWords() {
@@ -98,7 +106,96 @@ function showBonusWords() {
 	});
 }
 
-function startup() {
+function updateThemeColor() {
+	if (Math.floor(currentUser.level / 10) == patternCacheIdx) {
+		return;
+	}
+
+	pattern = Trianglify({
+		width: window.innerWidth,
+		height: window.innerHeight,
+		seed: Math.floor(currentUser.level / 10)
+	});
+	document.body.style.backgroundImage = "url('" + pattern.png() + "')";
+
+	var ra = 0,
+		rb = 0,
+		rg = 0;
+
+	for (var i = 0; i < pattern.opts.x_colors.length; i++) {
+		ra += parseInt(pattern.opts.x_colors[i].substring(1, 3), 16);
+		rg += parseInt(pattern.opts.x_colors[i].substring(3, 5), 16);
+		rb += parseInt(pattern.opts.x_colors[i].substring(5, 7), 16);
+	}
+	for (var i = 0; i < pattern.opts.y_colors.length; i++) {
+		ra += parseInt(pattern.opts.y_colors[i].substring(1, 3), 16);
+		rg += parseInt(pattern.opts.y_colors[i].substring(3, 5), 16);
+		rb += parseInt(pattern.opts.y_colors[i].substring(5, 7), 16);
+	}
+
+	ra /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+	rg /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+	rb /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
+
+	hsl = rgbToHsl(ra, rg, rb);
+	h2 = (hsl[0] + 0.5) % 1;
+	themeColor = hslToRgb(h2, Math.min(1, 2 * hsl[1]), Math.min(0.3, hsl[2]));
+
+	patternCacheIdx = Math.floor(currentUser.level / 10);
+}
+
+function buildCrossword() {
+	var input_json = [];
+	for (var i = 0; i < lwords.length; i++) {
+		input_json.push({ answer: lwords[i] });
+	}
+	var layout = generateLayout(input_json);
+	return layout.result;
+}
+
+function regenerateLevel() {
+	answers = buildCrossword();
+
+	for (var a = 0; a < answers.length; a++) {
+		answers[a].startx -= 1;
+		answers[a].starty -= 1;
+	}
+
+	var table_max_x = 0,
+		table_max_y = 0;
+
+	for (var i = 0; i < answers.length; i++) {
+		if (answers[i].orientation == "down") {
+			pos = answers[i].starty + answers[i].answer.length;
+			if (pos > table_max_y) {
+				table_max_y = pos;
+			}
+		}
+
+		if (answers[i].orientation == "across") {
+			pos = answers[i].startx + answers[i].answer.length;
+			if (pos > table_max_x) {
+				table_max_x = pos;
+			}
+		}
+	}
+	currentUser.answers = answers;
+
+	var table = {};
+	// build empty table
+	for (var r = 0; r < table_max_y; r++) {
+		for (var c = 0; c < table_max_x; c++) {
+			table[r + "," + c] = { blank: true, text: " ", found: false };
+		}
+	}
+
+	currentUser.table_max_x = table_max_x;
+	currentUser.table_max_y = table_max_y;
+	currentUser.table = table;
+	syncUser();
+}
+
+function startup(opts) {
 	// Obtain user's info + sync
 	syncUser();
 	// Reset some variables
@@ -118,39 +215,7 @@ function startup() {
 	el.addEventListener("touchmove", handleMove, false);
 	console.log("initialized.");
 
-	if (Math.floor(currentUser.level / 10) != patternCacheIdx) {
-		pattern = Trianglify({
-			width: window.innerWidth,
-			height: window.innerHeight,
-			seed: Math.floor(currentUser.level / 10)
-		});
-		document.body.style.backgroundImage = "url('" + pattern.png() + "')";
-
-		var ra = 0,
-			rb = 0,
-			rg = 0;
-
-		for (var i = 0; i < pattern.opts.x_colors.length; i++) {
-			ra += parseInt(pattern.opts.x_colors[i].substring(1, 3), 16);
-			rg += parseInt(pattern.opts.x_colors[i].substring(3, 5), 16);
-			rb += parseInt(pattern.opts.x_colors[i].substring(5, 7), 16);
-		}
-		for (var i = 0; i < pattern.opts.y_colors.length; i++) {
-			ra += parseInt(pattern.opts.y_colors[i].substring(1, 3), 16);
-			rg += parseInt(pattern.opts.y_colors[i].substring(3, 5), 16);
-			rb += parseInt(pattern.opts.y_colors[i].substring(5, 7), 16);
-		}
-
-		ra /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
-		rg /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
-		rb /= pattern.opts.x_colors.length + pattern.opts.y_colors.length;
-
-		hsl = rgbToHsl(ra, rg, rb);
-		h2 = (hsl[0] + 0.5) % 1;
-		themeColor = hslToRgb(h2, Math.min(1, 2 * hsl[1]), Math.min(0.3, hsl[2]));
-
-		patternCacheIdx = Math.floor(currentUser.level / 10);
-	}
+	updateThemeColor();
 
 	// Seed predictably
 	randomSetSeed(currentUser.level);
@@ -170,7 +235,7 @@ function startup() {
 	totalBonusWords = 0;
 	invalid_subsets = subsets(word);
 	valid_subsets = only5k(invalid_subsets);
-	if(level % 2 == 0){
+	if (level % 2 == 0) {
 		valid_subsets = valid_subsets.filter(word => word.length > 3);
 	}
 
@@ -181,7 +246,7 @@ function startup() {
 	}
 	// Top N?
 	shuffle(valid_subsets);
-	var lwords = [wordj].concat(
+	lwords = [wordj].concat(
 		valid_subsets
 			.filter(function(w) {
 				return w != wordj;
@@ -190,46 +255,15 @@ function startup() {
 	);
 	console.log(lwords);
 
-	var input_json = [];
-	for (var i = 0; i < lwords.length; i++) {
-		input_json.push({ answer: lwords[i] });
-	}
-
-	var layout = generateLayout(input_json);
-
-	answers = layout.result;
-	for (var a = 0; a < answers.length; a++) {
-		answers[a].startx -= 1;
-		answers[a].starty -= 1;
-	}
-
-	for (var i = 0; i < answers.length; i++) {
-		if (answers[i].orientation == "down") {
-			pos = answers[i].starty + answers[i].answer.length;
-			if (pos > table_max_y) {
-				table_max_y = pos;
-			}
-		}
-
-		if (answers[i].orientation == "across") {
-			pos = answers[i].startx + answers[i].answer.length;
-			if (pos > table_max_x) {
-				table_max_x = pos;
-			}
-		}
-	}
-
-	// build empty table
-	for (var r = 0; r < table_max_y; r++) {
-		for (var c = 0; c < table_max_x; c++) {
-			table[r + "," + c] = { blank: true, text: " ", found: false };
-		}
+	// Only rebuild the level if it's coming from a user beating the level, not
+	// if it's coming from initial load
+	if ((opts !== undefined && opts.levelUpdate) || currentUser.answers.length == 0) {
+		regenerateLevel();
 	}
 
 	renderTable();
 	offsetTop = document.getElementsByTagName("canvas")[0].offsetTop;
 	offsetLeft = document.getElementsByTagName("canvas")[0].offsetLeft;
-
 	clear(true);
 }
 
@@ -237,23 +271,23 @@ function renderTable(opts) {
 	var el = document.getElementById("crossword");
 	el.innerHTML = "";
 
-	for (var i = 0; i < answers.length; i++) {
-		a = answers[i];
+	for (var i = 0; i < currentUser.answers.length; i++) {
+		a = currentUser.answers[i];
 		r = a.starty + 0;
 		c = a.startx + 0;
 
 		for (var x = 0; x < a.answer.length; x++) {
 			key = r + "," + c;
 
-			found = table[key].found || a.found || false;
+			found = currentUser.table[key].found || a.found || false;
 
 			if (opts !== undefined && !found && opts.hint == true) {
 				found = true;
-				table[key].found = true;
+				currentUser.table[key].found = true;
 				opts.hint = false;
 			}
 
-			table[key] = { blank: false, text: a.answer[x], found: found };
+			currentUser.table[key] = { blank: false, text: a.answer[x], found: found };
 
 			if (a.orientation == "down") {
 				r += 1;
@@ -265,18 +299,18 @@ function renderTable(opts) {
 
 	tbl = document.createElement("table");
 
-	for (var r = 0; r < table_max_y; r++) {
+	for (var r = 0; r < currentUser.table_max_y; r++) {
 		tr = document.createElement("tr");
-		for (var c = 0; c < table_max_x; c++) {
+		for (var c = 0; c < currentUser.table_max_x; c++) {
 			td = document.createElement("td");
 			key = r + "," + c;
 
-			if (!table[key].blank) {
+			if (!currentUser.table[key].blank) {
 				td.style = "background: " + themeColor + "cc";
-				if (table[key].found) {
+				if (currentUser.table[key].found) {
 					td.className = "solved";
 				}
-				td.innerHTML = table[key].text;
+				td.innerHTML = currentUser.table[key].text;
 			}
 
 			tr.appendChild(td);
@@ -291,14 +325,14 @@ function renderTable(opts) {
 	total_width = document.body.clientWidth * 0.9;
 
 	// Retain proportions
-	if (table_max_x / table_max_y > total_width / total_height) {
-		scale = total_width / table_max_x;
+	if (currentUser.table_max_x / currentUser.table_max_y > total_width / total_height) {
+		scale = total_width / currentUser.table_max_x;
 	} else {
-		scale = total_height / table_max_y;
+		scale = total_height / currentUser.table_max_y;
 	}
 
-	tmp_tbl_height = scale * table_max_y;
-	tmp_tbl_width = scale * table_max_x;
+	tmp_tbl_height = scale * currentUser.table_max_y;
+	tmp_tbl_width = scale * currentUser.table_max_x;
 	tbl.width = tmp_tbl_width;
 	document.getElementsByTagName("table")[0].style = "height: " + tmp_tbl_height + "px";
 }
@@ -460,6 +494,7 @@ function handleEnd(evt) {
 			renderTable();
 		}
 	}
+	syncUser();
 	updateMoney(0);
 	finishLevelIfNeeded();
 	clear(true);
@@ -496,8 +531,8 @@ function findBonusWord(word) {
 }
 
 function finishLevelIfNeeded() {
-	for (var q = 0; q < answers.length; q++) {
-		if (!answers[q].found) {
+	for (var q = 0; q < currentUser.answers.length; q++) {
+		if (!currentUser.answers[q].found) {
 			return;
 		}
 	}
@@ -518,7 +553,7 @@ function advanceLevel(timeout, levels) {
 	} else {
 		currentUser.level++;
 	}
-	startup();
+	startup({ levelUpdate: true });
 }
 
 function handleCancel(evt) {
