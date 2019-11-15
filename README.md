@@ -7,7 +7,3 @@ For personal use: a clone of [wordscapes](https://www.google.com/search?tbm=isch
 ## Crossword Library
 
 This exists in a large part thanks to [@MichaelWehar's](https://github.com/MichaelWehar) super great [crossword layout library](https://github.com/MichaelWehar/Crossword-Layout-Generator).
-
-## LICENSE
-
-AGPL-3
